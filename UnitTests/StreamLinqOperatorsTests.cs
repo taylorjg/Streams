@@ -94,10 +94,11 @@ namespace UnitTests
             Assert.That(stream2.AsEnumerable(), Is.EqualTo(new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
         }
 
-        [TestCase(new[] {1, 2, 3}, new[] {4, 5, 6}, new[] {1, 2, 3, 4, 5, 6})]
-        [TestCase(new[] {1, 2, 3}, new int[0], new[] {1, 2, 3})]
-        [TestCase(new int[0], new[] {4, 5, 6}, new[] {4, 5, 6})]
-        public void Concat(int[] first, int[] second, int[] expected)
+        [TestCase(new[] {1, 2, 3}, new[] {4, 5, 6}, new[] {1, 2, 3, 4, 5, 6}, "Both streams non-empty")]
+        [TestCase(new int[0], new[] { 4, 5, 6 }, new[] { 4, 5, 6 }, "First stream empty")]
+        [TestCase(new[] { 1, 2, 3 }, new int[0], new[] { 1, 2, 3 }, "Second stream empty")]
+        [TestCase(new int[0], new int[0], new int[0], "Both streams empty")]
+        public void Concat(int[] first, int[] second, int[] expected, string description)
         {
             var stream1 = first.AsStream();
             var stream2 = second.AsStream();

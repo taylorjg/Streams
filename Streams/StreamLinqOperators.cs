@@ -16,7 +16,7 @@ namespace Streams
                 source = source.Tail;
             }
 
-            return Stream<TSource>.EmptyStream;
+            return Stream<TSource>.Nil;
         }
 
         public static Stream<TSource> Where<TSource>(this Stream<TSource> source, Func<TSource, int, bool> predicate)
@@ -33,7 +33,7 @@ namespace Streams
                 source = source.Tail;
             }
 
-            return Stream<TSource>.EmptyStream;
+            return Stream<TSource>.Nil;
         }
 
         public static Stream<TResult> Select<TSource, TResult>(this Stream<TSource> source, Func<TSource, TResult> selector)
@@ -43,7 +43,7 @@ namespace Streams
                 return Stream<TResult>.Cons(selector(source.Head), () => source.Tail.Select(selector));
             }
 
-            return Stream<TResult>.EmptyStream;
+            return Stream<TResult>.Nil;
         }
 
         public static Stream<TResult> Select<TSource, TResult>(this Stream<TSource> source, Func<TSource, int, TResult> selector)
@@ -58,7 +58,7 @@ namespace Streams
                 return Stream<TResult>.Cons(selector(source.Head, index++), () => source.Tail.SelectHelper(selector, index));
             }
 
-            return Stream<TResult>.EmptyStream;
+            return Stream<TResult>.Nil;
         }
 
         public static Stream<TSource> Concat<TSource>(this Stream<TSource> first, Stream<TSource> second)
@@ -70,10 +70,10 @@ namespace Streams
 
             while (!second.IsEmpty)
             {
-                return Stream<TSource>.Cons(second.Head, () => second.Tail.Concat(Stream<TSource>.EmptyStream));
+                return Stream<TSource>.Cons(second.Head, () => second.Tail.Concat(Stream<TSource>.Nil));
             }
 
-            return Stream<TSource>.EmptyStream;
+            return Stream<TSource>.Nil;
         }
     }
 }

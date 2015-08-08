@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Streams
 {
@@ -22,7 +23,17 @@ namespace Streams
 
         private static Stream<T> AsStream<T>(this IEnumerator<T> e)
         {
-            return e.MoveNext() ? Stream<T>.Cons(e.Current, e.AsStream) : Stream<T>.EmptyStream;
+            return e.MoveNext() ? Stream<T>.Cons(e.Current, e.AsStream) : Stream<T>.Nil;
+        }
+
+        public static Stream<T> Cons<T>(this T head)
+        {
+            return Stream<T>.Cons(head);
+        }
+
+        public static Stream<T> Cons<T>(this T head, Func<Stream<T>> tail)
+        {
+            return Stream<T>.Cons(head, tail);
         }
     }
 }

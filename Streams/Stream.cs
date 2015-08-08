@@ -15,12 +15,14 @@ namespace Streams
 
         private Stream(T head, Func<Stream<T>> tail)
         {
+            if (tail == null)
+                throw new ArgumentNullException("tail");
             _pair = Tuple.Create(head, tail);
         }
 
         public static Stream<T> Cons(T head)
         {
-            return new Stream<T>(head, () => EmptyStream);
+            return new Stream<T>(head, NilTailFunc);
         }
 
         public static Stream<T> Cons(T head, Func<Stream<T>> tail)
@@ -28,9 +30,10 @@ namespace Streams
             return new Stream<T>(head, tail);
         }
 
-        public static readonly Stream<T> EmptyStream = new Stream<T>();
+        public static readonly Stream<T> Nil = new Stream<T>();
+        private static readonly Func<Stream<T>> NilTailFunc = () => Nil;
 
-        public bool IsEmpty { get { return this == EmptyStream; } }
+        public bool IsEmpty { get { return this == Nil; } }
 
         public T Head
         {
