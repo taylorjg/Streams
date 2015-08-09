@@ -4,25 +4,23 @@ namespace Streams
 {
     public sealed class Stream<T>
     {
-        private readonly Tuple<T, Func<Stream<T>>> _pair;
-        private Stream<T> _tail;
+        private readonly Tuple<T, Lazy<Stream<T>>> _pair;
 
         private Stream()
         {
             _pair = null;
-            _tail = null;
         }
 
         private Stream(T head, Func<Stream<T>> tail)
         {
             if (tail == null)
                 throw new ArgumentNullException("tail");
-            _pair = Tuple.Create(head, tail);
+            _pair = Tuple.Create(head, new Lazy<Stream<T>>(tail));
         }
 
         public static Stream<T> Cons(T head)
         {
-            return new Stream<T>(head, NilTailFunc);
+            return new Stream<T>(head, () => Nil);
         }
 
         public static Stream<T> Cons(T head, Func<Stream<T>> tail)
@@ -31,7 +29,6 @@ namespace Streams
         }
 
         public static readonly Stream<T> Nil = new Stream<T>();
-        private static readonly Func<Stream<T>> NilTailFunc = () => Nil;
 
         public bool IsEmpty { get { return this == Nil; } }
 
@@ -49,21 +46,22 @@ namespace Streams
             get
             {
                 PerformEmptyCheck("Tail");
-                return _tail ?? (_tail = _pair.Item2());
+                return _pair.Item2.Value;
             }
         }
 
         private void PerformEmptyCheck(string functionName)
         {
-            if (_pair == null) throw new InvalidOperationException(string.Format("{0} called on empty stream.", functionName));
+            if (_pair == null)
+                throw new InvalidOperationException(string.Format("{0} called on empty stream.", functionName));
         }
 
-        public void Match(Action actionEmpty, Action<T, Stream<T>> actionNonEmpty)
+        public void Match(Action<T, Stream<T>> actionNonEmpty, Action actionEmpty)
         {
             if (IsEmpty) actionEmpty(); else actionNonEmpty(Head, Tail);
         }
 
-        public TResult Match<TResult>(Func<TResult> funcEmpty, Func<T, Stream<T>, TResult> funcNonEmpty)
+        public TResult Match<TResult>(Func<T, Stream<T>, TResult> funcNonEmpty, Func<TResult> funcEmpty)
         {
             return IsEmpty ? funcEmpty() : funcNonEmpty(Head, Tail);
         }
